@@ -172,26 +172,31 @@
     color: var(--text-body);
   }
 
-  .plain-english {
+  .date-widget {
     background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
     border-left: 3px solid var(--sky-accent);
     border-radius: var(--radius-sm);
     padding: 1rem 1.25rem;
     margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
   }
-  .plain-english-label {
+  .date-widget-icon { font-size: 2rem; line-height: 1; }
+  .date-widget-label {
     font-size: 0.65rem;
     font-weight: 600;
     letter-spacing: 0.1em;
     text-transform: uppercase;
     color: var(--sky-accent);
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
   }
-  .plain-english p {
-    font-size: 0.975rem;
-    line-height: 1.6;
-    color: var(--text-body);
-    font-weight: 400;
+  .date-widget-full {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.2;
   }
 
   .stats-row {
@@ -220,6 +225,39 @@
     text-transform: uppercase;
     color: var(--text-muted);
     margin-top: 0.15rem;
+    display: block;
+  }
+
+  .sun-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .sun-box {
+    background: linear-gradient(135deg, #fef9ec, #fff7e0);
+    border: 1px solid rgba(240,180,41,0.25);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .sun-icon { font-size: 1.5rem; line-height: 1; }
+  .sun-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1rem;
+    font-weight: 500;
+    color: var(--sky-deep);
+    display: block;
+  }
+  .sun-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.1rem;
     display: block;
   }
 
@@ -1031,7 +1069,7 @@ async function fetchWeather() {
     `?latitude=${FREDERICK.lat}&longitude=${FREDERICK.lon}` +
     `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,precipitation` +
     `&hourly=temperature_2m,weather_code,precipitation_probability` +
-    `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,sunrise,sunset` +
     `&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch` +
     `&timezone=America%2FNew_York&forecast_days=7`;
 
@@ -1122,9 +1160,12 @@ function render(weather, alerts) {
         </div>
       </div>
 
-      <div class="plain-english">
-        <div class="plain-english-label">Plain English Forecast</div>
-        <p>${plainText}</p>
+      <div class="date-widget">
+        <span class="date-widget-icon">📅</span>
+        <div>
+          <div class="date-widget-label">Today</div>
+          <div class="date-widget-full">${now.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}</div>
+        </div>
       </div>
 
       <div class="stats-row">
@@ -1147,6 +1188,23 @@ function render(weather, alerts) {
           <span class="stat-icon">🌧️</span>
           <span class="stat-value">${daily.precipitation_probability_max[0]}%</span>
           <span class="stat-label">Rain Chance</span>
+        </div>
+      </div>
+
+      <div class="sun-row">
+        <div class="sun-box">
+          <span class="sun-icon">🌅</span>
+          <div>
+            <span class="sun-value">${fmtTime(daily.sunrise[0])}</span>
+            <span class="sun-label">Sunrise</span>
+          </div>
+        </div>
+        <div class="sun-box">
+          <span class="sun-icon">🌇</span>
+          <div>
+            <span class="sun-value">${fmtTime(daily.sunset[0])}</span>
+            <span class="sun-label">Sunset</span>
+          </div>
         </div>
       </div>
 
