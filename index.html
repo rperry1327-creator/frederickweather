@@ -696,23 +696,6 @@
   }
   .blog-empty p { font-size: 0.9rem; }
 
-  /* New post CTA */
-  .new-post-cta {
-    background: rgba(255,255,255,0.05);
-    border: 2px dashed rgba(255,255,255,0.18);
-    border-radius: var(--radius);
-    padding: 1.5rem;
-    text-align: center;
-    margin-top: 1rem;
-  }
-  .new-post-cta p {
-    font-size: 0.85rem;
-    color: var(--mist);
-    margin-bottom: 0.75rem;
-    line-height: 1.5;
-  }
-  .new-post-cta strong { color: var(--white); }
-
   /* ── RESPONSIVE ── */
   @media (max-width: 600px) {
     .current-temp { font-size: 4rem; }
@@ -773,12 +756,6 @@
     <!-- Blog feed -->
     <div class="blog-feed" id="blog-feed"></div>
 
-    <!-- New post CTA -->
-    <div class="new-post-cta" style="margin-top:1.5rem;">
-      <p><strong>Want to add a post?</strong><br>
-      Drop your write-up into the <code>BLOG_POSTS</code> array in the page source. Use <code>type: "editor"</code> for your own analysis, or <code>type: "ai"</code> for AI-generated outlooks.</p>
-    </div>
-
   </div>
 
   <!-- Subscribe strip -->
@@ -804,16 +781,6 @@ const SUBSTACK_URL = "https://open.substack.com/pub/ryanperry319043/p/weather-fo
 document.getElementById("subscribe-link").href = SUBSTACK_URL;
 
 // ─── BLOG POSTS ──────────────────────────────────────────────────────────
-// To add a new post, prepend an object to this array.
-// Fields:
-//   id         – unique string
-//   date       – display date string
-//   title      – post headline
-//   type       – "ai" | "editor"
-//   tags       – array of: "outlook" | "event" | "climate" | "radar"
-//   summary    – 1-2 sentence teaser (always visible)
-//   body       – full post HTML (shown on expand). Use <p> tags.
-//   pinned     – true | false (pinned posts sort to top)
 const BLOG_POSTS = [
   {
     id: "post-001",
