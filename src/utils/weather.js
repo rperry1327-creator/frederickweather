@@ -74,6 +74,7 @@ export function fmtSunTime(iso) {
 
 export function dayName(iso, i) {
   if (i === 0) return "Today";
+  const [year, month, day] = iso.split("-").map(Number);
   const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-  return days[new Date(iso).getDay()];
+  return days[new Date(year, month - 1, day).getDay()];
 }
