@@ -1,19 +1,39 @@
 export const BLOG_POSTS = [
   {
     id: "post-001",
-    date: "Jun 28, 2025",
-    title: "This Week in Frederick: Heat Dome Sets Up Over the Mid-Atlantic",
+    date: "Jun 28, 2026",
+    title: "This Week in Frederick: Heat Wave Could Bring Record Temps Into the 4th of July",
     type: "editor",
     tags: ["outlook", "event"],
     pinned: true,
-    summary: "A persistent upper-level ridge is keeping temperatures well above average through the weekend. Here's what the setup looks like and when we might finally catch a break.",
+    summary: "A dangerous heat wave is building across the mid-Atlantic heading into the holiday weekend. Frederick could see temperatures approach or break all-time July records — here's what to expect and how to stay safe.",
     body: `
-      <p>The 500mb pattern has been the dominant story this week. A strong ridge anchored over the Southeast is funneling hot, humid air northward into the mid-Atlantic, and Frederick is right in the bullseye. Afternoon highs have consistently topped 95°F, with dewpoints hovering in the upper 60s — that's the kind of combo that makes the heat index feel 105°+.</p>
+      <p>If you're planning to be outside for the 4th of July, you need to read this. A powerful upper-level ridge is anchoring itself over the eastern United States and it's not going anywhere fast. Both the GFS and European models are in strong agreement: Frederick is heading into one of the most significant heat events in recent memory, with the peak likely falling right on the holiday weekend itself.</p>
       <div class="data-callout">
-        <strong>📊 By the numbers:</strong> Frederick hit 97°F on Thursday, tying the daily record set in 1988. The overnight low of 76°F was also notable — our "coolest" time of day is still warmer than most summer afternoons in cooler climates.
+        <strong>🌡️ The forecast:</strong> Highs of 98–102°F are expected Thursday through Sunday, with heat index values potentially topping 110°F during peak afternoon hours. Frederick's all-time July record is 104°F, set in 2012 — that record is in play this weekend.
       </div>
-      <p>The ridge starts to break down by Tuesday as a cold front approaches from the northwest. The GFS has been consistent on a Tuesday afternoon storm chance, while the Euro wants to hold the boundary back an extra 12 hours. Either way, expect some fireworks before the relief arrives.</p>
-      <p>Once that front clears, temperatures should drop back to the low-to-mid 80s by Wednesday — still warm, but a world apart from what we've been dealing with. Keep an eye on the Tuesday evening storm window if you have outdoor plans.</p>
+      <p>What makes this setup particularly brutal is the humidity. Dewpoints are forecast to climb into the low-to-mid 70s by Friday — that's tropical-level moisture. When you combine that with temperatures near 100°F, the heat index tells the real story: it will feel like 108–112°F in direct sun. This is not typical summer heat. This is the kind of heat that sends people to the hospital.</p>
+      <p>Overnight lows will offer almost no relief, staying in the upper 70s to near 80°F through the weekend. When the temperature doesn't drop below 80°F overnight, your body never fully recovers from the daytime heat — that's when heat illness becomes a serious risk even for healthy adults.</p>
+      <p>A cold front is expected to approach from the west by Monday or Tuesday, but timing is uncertain. Don't count on relief before the holiday weekend is over.</p>
+
+      <p><strong>🧊 How to Stay Cool — Tips for Frederick's Heat Wave</strong></p>
+      <p>In heat like this, staying comfortable isn't just about comfort — it's about safety. Here's what actually works in hot, humid conditions:</p>
+      <div class="data-callout">
+        <strong>⏰ Time your outdoor activity carefully.</strong> The heat index peaks between 1PM and 5PM. If you need to be outside, aim for before 10AM or after 7PM. Morning is significantly safer than evening — overnight lows this week will still be dangerously warm by late afternoon.
+      </div>
+      <div class="data-callout">
+        <strong>💧 Hydrate ahead of the heat, not just during it.</strong> By the time you feel thirsty in 100°F+ heat, you're already behind. Start drinking water early in the morning and aim for at least 8–10 oz every 30 minutes during outdoor activity. Avoid alcohol and caffeine, which accelerate dehydration.
+      </div>
+      <div class="data-callout">
+        <strong>🪟 Keep your home cool strategically.</strong> Close blinds and curtains on south- and west-facing windows during the day to block radiant heat. If you have AC, set it and leave it — don't cycle it on and off. If you don't have AC, the Frederick County cooling centers (check the county website for locations) will be open extended hours through the weekend.
+      </div>
+      <div class="data-callout">
+        <strong>👕 Dress for the humidity, not just the heat.</strong> Loose-fitting, light-colored, moisture-wicking clothing makes a real difference. Cotton holds sweat against your skin; synthetic athletic fabrics move it away. A wide-brimmed hat and UV sunglasses are essential if you're outside for the 4th of July festivities.
+      </div>
+      <div class="data-callout">
+        <strong>🐾 Don't forget pets and vehicles.</strong> A car parked in the sun reaches 130–140°F inside within minutes at these temperatures — never leave children or pets unattended. Limit walks with dogs to early morning; pavement that hot will burn paw pads in seconds.
+      </div>
+      <p>Check on elderly neighbors and anyone without reliable air conditioning. Heat is the deadliest weather hazard in the United States — more fatalities each year than tornadoes, hurricanes, and floods combined. Take this one seriously, enjoy the holiday safely, and I'll have an updated post once we get through the weekend.</p>
     `
   },
   {
