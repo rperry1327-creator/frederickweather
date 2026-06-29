@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Frederick Weather – Plain English Forecast</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,700&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --sky-deep: #0f2040;
+    --sky-mid: #1a3a6e;
+    --sky-accent: #2563c4;
+    --gold: #f0b429;
+    --gold-light: #fde68a;
+    --cloud: #e8edf5;
+    --mist: #c5d0e2;
+    --text-dark: #0f2040;
+    --text-body: #2d3f5c;
+    --text-muted: #6b7fa3;
+    --white: #ffffff;
+    --card-bg: rgba(255,255,255,0.92);
+    --radius: 16px;
+    --radius-sm: 8px;
+  }
+
+  html { font-size: 16px; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--sky-deep);
+    color: var(--text-dark);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Sky gradient bg */
+  .sky-bg {
+    position: fixed; inset: 0; z-index: 0;
+    background: linear-gradient(170deg, #0a1628 0%, #0f2a5a 40%, #1a4a8a 70%, #2a6cb0 100%);
+  }
+  .sky-bg::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse 80% 40% at 60% 20%, rgba(240,180,41,0.08) 0%, transparent 70%);
+  }
+
+  .page-wrap {
+    position: relative; z-index: 1;
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 2rem 1.25rem 4rem;
+  }
+
+  /* ── HEADER ── */
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1.25rem;
+    border-bottom: 1px solid rgba(255,255,255,0.12);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .site-brand {}
+  .site-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.6rem;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    line-height: 1;
+  }
+  .site-name span { color: var(--gold); }
+  .site-tagline {
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: var(--mist);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 0.3rem;
+  }
+
+  /* ── NAV ── */
+  .site-nav {
+    display: flex;
+    gap: 0.25rem;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 100px;
+    padding: 0.25rem;
+  }
+  .nav-btn {
+    background: transparent;
+    border: none;
+    border-radius: 100px;
+    padding: 0.45rem 1.1rem;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--mist);
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    letter-spacing: 0.02em;
+  }
+  .nav-btn.active {
+    background: var(--gold);
+    color: var(--sky-deep);
+  }
+  .nav-btn:not(.active):hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--white);
+  }
+
+  /* ── HERO CARD ── */
+  .hero-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
+    padding: 2rem 2rem 1.75rem;
+    margin-bottom: 1.25rem;
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 8px 40px rgba(10,22,40,0.3);
+  }
+
+  .hero-top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    gap: 1rem;
+  }
+
+  .location-label {
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sky-accent);
+    margin-bottom: 0.35rem;
+  }
+
+  .current-temp {
+    font-family: 'Playfair Display', serif;
+    font-size: 5.5rem;
+    font-weight: 900;
+    line-height: 1;
+    color: var(--sky-deep);
+    letter-spacing: -0.04em;
+  }
+  .current-temp sup {
+    font-size: 2rem;
+    vertical-align: super;
+    font-weight: 700;
+  }
+
+  .condition-block { text-align: right; }
+  .condition-icon {
+    font-size: 4rem;
+    line-height: 1;
+    display: block;
+    margin-bottom: 0.25rem;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.15));
+  }
+  .condition-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--text-body);
+  }
+
+  .plain-english {
+    background: linear-gradient(135deg, #eff6ff 0%, #f0f9ff 100%);
+    border-left: 3px solid var(--sky-accent);
+    border-radius: var(--radius-sm);
+    padding: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  .plain-english-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--sky-accent);
+    margin-bottom: 0.4rem;
+  }
+  .plain-english p {
+    font-size: 0.975rem;
+    line-height: 1.6;
+    color: var(--text-body);
+    font-weight: 400;
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0.75rem;
+  }
+  .stat-box {
+    background: var(--cloud);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.6rem;
+    text-align: center;
+  }
+  .stat-icon { font-size: 1.25rem; display: block; margin-bottom: 0.2rem; }
+  .stat-value {
+    font-family: 'DM Mono', monospace;
+    font-size: 1.05rem;
+    font-weight: 500;
+    color: var(--sky-deep);
+    display: block;
+  }
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-top: 0.15rem;
+    display: block;
+  }
+
+  /* ── FORECAST STRIP ── */
+  .section-label {
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--mist);
+    margin-bottom: 0.75rem;
+    padding-left: 0.25rem;
+  }
+
+  .forecast-strip {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.6rem;
+    margin-bottom: 1.25rem;
+  }
+
+  .forecast-day {
+    background: rgba(255,255,255,0.08);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: var(--radius-sm);
+    padding: 0.9rem 0.4rem;
+    text-align: center;
+    transition: background 0.2s, transform 0.15s;
+    cursor: default;
+  }
+  .forecast-day:hover {
+    background: rgba(255,255,255,0.15);
+    transform: translateY(-2px);
+  }
+  .forecast-day.today {
+    background: rgba(240,180,41,0.18);
+    border-color: rgba(240,180,41,0.4);
+  }
+  .day-name {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mist);
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+  .forecast-day.today .day-name { color: var(--gold-light); }
+  .day-icon { font-size: 1.5rem; display: block; margin-bottom: 0.5rem; }
+  .day-hi {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.95rem;
+    font-weight: 500;
+    color: var(--white);
+    display: block;
+  }
+  .day-lo {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.78rem;
+    color: var(--mist);
+    display: block;
+    margin-top: 0.1rem;
+  }
+
+  /* ── HOURLY ── */
+  .hourly-scroll {
+    display: flex;
+    gap: 0.6rem;
+    overflow-x: auto;
+    padding-bottom: 0.5rem;
+    margin-bottom: 1.25rem;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.2) transparent;
+  }
+  .hourly-item {
+    flex: 0 0 72px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 0.5rem;
+    text-align: center;
+  }
+  .hour-time {
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    color: var(--mist);
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 0.4rem;
+  }
+  .hour-icon { font-size: 1.25rem; display: block; margin-bottom: 0.35rem; }
+  .hour-temp {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--white);
+    display: block;
+  }
+  .hour-precip {
+    font-size: 0.65rem;
+    color: #93c5fd;
+    display: block;
+    margin-top: 0.15rem;
+  }
+
+  /* ── ALERT BANNER ── */
+  .alert-banner {
+    background: linear-gradient(135deg, #7c2d12, #9a3412);
+    border: 1px solid #ea580c;
+    border-radius: var(--radius-sm);
+    padding: 0.85rem 1.1rem;
+    margin-bottom: 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    animation: pulse-border 2s ease-in-out infinite;
+  }
+  @keyframes pulse-border {
+    0%, 100% { border-color: #ea580c; }
+    50% { border-color: #fb923c; }
+  }
+  .alert-icon { font-size: 1.25rem; flex-shrink: 0; }
+  .alert-text { font-size: 0.85rem; color: #fed7aa; line-height: 1.4; }
+  .alert-text strong { color: #fff; display: block; margin-bottom: 0.1rem; }
+
+  /* ── FOOTER ── */
+  .widget-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 1rem;
+    border-top: 1px solid rgba(255,255,255,0.1);
+  }
+  .update-time {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+  }
+  .data-sources { font-size: 0.68rem; color: var(--text-muted); }
+  .data-sources a {
+    color: var(--text-muted);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(107,127,163,0.4);
+  }
+
+  /* ── LOADING / ERROR ── */
+  .loading-state {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--mist);
+  }
+  .loading-spinner {
+    width: 40px; height: 40px;
+    border: 3px solid rgba(255,255,255,0.1);
+    border-top-color: var(--gold);
+    border-radius: 50%;
+    margin: 0 auto 1rem;
+    animation: spin 0.9s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-state p { font-size: 0.9rem; }
+
+  .error-card {
+    background: var(--card-bg);
+    border-radius: var(--radius);
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-body);
+  }
+  .error-card h3 { font-family: 'Playfair Display', serif; margin-bottom: 0.5rem; }
+
+  /* ── SUBSCRIBE STRIP ── */
+  .subscribe-strip {
+    margin-top: 1.5rem;
+    background: linear-gradient(135deg, rgba(240,180,41,0.15), rgba(37,99,196,0.15));
+    border: 1px solid rgba(240,180,41,0.25);
+    border-radius: var(--radius);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    flex-wrap: wrap;
+  }
+  .subscribe-text h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.15rem;
+    color: var(--white);
+    margin-bottom: 0.25rem;
+  }
+  .subscribe-text p { font-size: 0.82rem; color: var(--mist); }
+  .subscribe-btn {
+    background: var(--gold);
+    color: var(--sky-deep);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.85rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 100px;
+    padding: 0.65rem 1.5rem;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.2s, transform 0.15s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  .subscribe-btn:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* ══════════════════════════════════════
+     ── BLOG SECTION ──
+  ══════════════════════════════════════ */
+
+  #blog-view { display: none; }
+
+  /* Blog header row */
+  .blog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.5rem;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .blog-header-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 900;
+    color: var(--white);
+    letter-spacing: -0.02em;
+  }
+  .blog-header-title span { color: var(--gold); }
+
+  /* Tag filter pills */
+  .tag-filter {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    margin-bottom: 1.5rem;
+  }
+  .tag-pill {
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.14);
+    border-radius: 100px;
+    padding: 0.3rem 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--mist);
+    cursor: pointer;
+    letter-spacing: 0.04em;
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    text-transform: uppercase;
+  }
+  .tag-pill:hover, .tag-pill.active {
+    background: rgba(240,180,41,0.2);
+    border-color: rgba(240,180,41,0.5);
+    color: var(--gold-light);
+  }
+
+  /* Blog post card */
+  .blog-feed {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .post-card {
+    background: var(--card-bg);
+    backdrop-filter: blur(20px);
+    border-radius: var(--radius);
+    border: 1px solid rgba(255,255,255,0.6);
+    box-shadow: 0 4px 24px rgba(10,22,40,0.2);
+    overflow: hidden;
+    transition: box-shadow 0.2s, transform 0.15s;
+  }
+  .post-card:hover {
+    box-shadow: 0 8px 40px rgba(10,22,40,0.35);
+    transform: translateY(-2px);
+  }
+  .post-card.pinned {
+    border-color: rgba(240,180,41,0.5);
+    box-shadow: 0 4px 24px rgba(240,180,41,0.12);
+  }
+
+  .post-card-inner { padding: 1.5rem 1.75rem; }
+
+  /* Post meta row */
+  .post-meta {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.75rem;
+  }
+
+  /* Author badge */
+  .author-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    border-radius: 100px;
+    padding: 0.2rem 0.65rem;
+    font-size: 0.67rem;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+  .author-badge.ai {
+    background: linear-gradient(135deg, #dbeafe, #eff6ff);
+    color: #1e40af;
+    border: 1px solid #bfdbfe;
+  }
+  .author-badge.editor {
+    background: linear-gradient(135deg, #fef3c7, #fdf6e3);
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  .author-badge .badge-dot {
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.7;
+  }
+
+  /* Post category tags */
+  .post-tag {
+    font-size: 0.67rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    background: var(--cloud);
+    border-radius: 4px;
+    padding: 0.15rem 0.5rem;
+  }
+  .post-tag.event { color: #9a3412; background: #fff7ed; }
+  .post-tag.outlook { color: #1e40af; background: #eff6ff; }
+  .post-tag.climate { color: #065f46; background: #ecfdf5; }
+  .post-tag.radar { color: #4c1d95; background: #f5f3ff; }
+
+  .post-date {
+    font-size: 0.72rem;
+    color: var(--text-muted);
+    font-family: 'DM Mono', monospace;
+    margin-left: auto;
+  }
+
+  /* Pinned label */
+  .pinned-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+
+  /* Post title */
+  .post-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: var(--text-dark);
+    line-height: 1.3;
+    margin-bottom: 0.6rem;
+    letter-spacing: -0.01em;
+  }
+
+  /* Post summary (always visible) */
+  .post-summary {
+    font-size: 0.92rem;
+    line-height: 1.65;
+    color: var(--text-body);
+    margin-bottom: 1rem;
+  }
+
+  /* Expandable body */
+  .post-body {
+    display: none;
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: var(--text-body);
+    border-top: 1px solid rgba(0,0,0,0.07);
+    padding-top: 1rem;
+    margin-top: 0.25rem;
+    margin-bottom: 0.75rem;
+  }
+  .post-body p { margin-bottom: 0.85rem; }
+  .post-body p:last-child { margin-bottom: 0; }
+
+  .post-body.open { display: block; }
+
+  /* Inline data callout */
+  .data-callout {
+    background: linear-gradient(135deg, #eff6ff, #f0f9ff);
+    border-left: 3px solid var(--sky-accent);
+    border-radius: var(--radius-sm);
+    padding: 0.75rem 1rem;
+    margin: 0.75rem 0;
+    font-size: 0.85rem;
+    color: var(--text-body);
+  }
+  .data-callout strong { color: var(--sky-deep); }
+
+  /* Read more toggle */
+  .read-more-btn {
+    background: none;
+    border: none;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--sky-accent);
+    cursor: pointer;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    transition: color 0.2s;
+  }
+  .read-more-btn:hover { color: var(--sky-mid); }
+  .read-more-btn .arrow {
+    display: inline-block;
+    transition: transform 0.2s;
+    font-style: normal;
+  }
+  .read-more-btn.open .arrow { transform: rotate(180deg); }
+
+  /* Empty state */
+  .blog-empty {
+    text-align: center;
+    padding: 3rem 2rem;
+    color: var(--mist);
+  }
+  .blog-empty p { font-size: 0.9rem; }
+
+  /* New post CTA */
+  .new-post-cta {
+    background: rgba(255,255,255,0.05);
+    border: 2px dashed rgba(255,255,255,0.18);
+    border-radius: var(--radius);
+    padding: 1.5rem;
+    text-align: center;
+    margin-top: 1rem;
+  }
+  .new-post-cta p {
+    font-size: 0.85rem;
+    color: var(--mist);
+    margin-bottom: 0.75rem;
+    line-height: 1.5;
+  }
+  .new-post-cta strong { color: var(--white); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 600px) {
+    .current-temp { font-size: 4rem; }
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .forecast-strip { grid-template-columns: repeat(4, 1fr); }
+    .forecast-strip .forecast-day:nth-child(n+5) { display: none; }
+    .hero-card { padding: 1.5rem; }
+    .post-card-inner { padding: 1.25rem; }
+    .post-title { font-size: 1.1rem; }
+    .post-date { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="sky-bg"></div>
+
+<div class="page-wrap">
+
+  <header class="site-header">
+    <div class="site-brand">
+      <div class="site-name">Frederick<span>Weather</span></div>
+      <div class="site-tagline">Plain English · Frederick, MD</div>
+    </div>
+    <nav class="site-nav">
+      <button class="nav-btn active" id="nav-forecast" onclick="showView('forecast')">⛅ Forecast</button>
+      <button class="nav-btn" id="nav-blog" onclick="showView('blog')">📝 Blog</button>
+    </nav>
+  </header>
+
+  <!-- ── FORECAST VIEW ── -->
+  <div id="forecast-view">
+    <div id="alert-container"></div>
+    <div id="main-content">
+      <div class="loading-state">
+        <div class="loading-spinner"></div>
+        <p>Checking in with the sky over Frederick…</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── BLOG VIEW ── -->
+  <div id="blog-view">
+
+    <div class="blog-header">
+      <div class="blog-header-title">The Frederick <span>Forecast</span> Blog</div>
+    </div>
+
+    <!-- Tag filter -->
+    <div class="tag-filter" id="tag-filter">
+      <button class="tag-pill active" data-tag="all" onclick="filterPosts('all', this)">All Posts</button>
+      <button class="tag-pill" data-tag="outlook" onclick="filterPosts('outlook', this)">Weekly Outlook</button>
+      <button class="tag-pill" data-tag="event" onclick="filterPosts('event', this)">Storm Events</button>
+      <button class="tag-pill" data-tag="climate" onclick="filterPosts('climate', this)">Climate Notes</button>
+      <button class="tag-pill" data-tag="radar" onclick="filterPosts('radar', this)">Radar Breakdown</button>
+    </div>
+
+    <!-- Blog feed -->
+    <div class="blog-feed" id="blog-feed"></div>
+
+    <!-- New post CTA -->
+    <div class="new-post-cta" style="margin-top:1.5rem;">
+      <p><strong>Want to add a post?</strong><br>
+      Drop your write-up into the <code>BLOG_POSTS</code> array in the page source. Use <code>type: "editor"</code> for your own analysis, or <code>type: "ai"</code> for AI-generated outlooks.</p>
+    </div>
+
+  </div>
+
+  <!-- Subscribe strip -->
+  <div class="subscribe-strip">
+    <div class="subscribe-text">
+      <h3>Get the weekly forecast in your inbox.</h3>
+      <p>No jargon. Just what you actually need to know — every Sunday morning.</p>
+    </div>
+    <!-- TODO: Replace href with your Substack subscribe URL once created -->
+    <a class="subscribe-btn" id="subscribe-link" href="https://substack.com" target="_blank">Subscribe Free →</a>
+  </div>
+
+</div>
+
+<script>
+// ─── CONFIG ───────────────────────────────────────────────────────────────
+const FREDERICK = { lat: 39.4143, lon: -77.4105, name: "Frederick, MD" };
+
+// ─── SUBSTACK URL ────────────────────────────────────────────────────────
+// Once you create your Substack, replace this with your publication's subscribe URL
+// e.g. "https://frederickforecast.substack.com/subscribe"
+const SUBSTACK_URL = "https://open.substack.com/pub/ryanperry319043/p/weather-for-frederick-md?r=3o243n&utm_campaign=post&utm_medium=web&showWelcomeOnShare=true";
+document.getElementById("subscribe-link").href = SUBSTACK_URL;
+
+// ─── BLOG POSTS ──────────────────────────────────────────────────────────
+// To add a new post, prepend an object to this array.
+// Fields:
+//   id         – unique string
+//   date       – display date string
+//   title      – post headline
+//   type       – "ai" | "editor"
+//   tags       – array of: "outlook" | "event" | "climate" | "radar"
+//   summary    – 1-2 sentence teaser (always visible)
+//   body       – full post HTML (shown on expand). Use <p> tags.
+//   pinned     – true | false (pinned posts sort to top)
+const BLOG_POSTS = [
+  {
+    id: "post-001",
+    date: "Jun 28, 2025",
+    title: "This Week in Frederick: Heat Dome Sets Up Over the Mid-Atlantic",
+    type: "editor",
+    tags: ["outlook", "event"],
+    pinned: true,
+    summary: "A persistent upper-level ridge is keeping temperatures well above average through the weekend. Here's what the setup looks like and when we might finally catch a break.",
+    body: `
+      <p>The 500mb pattern has been the dominant story this week. A strong ridge anchored over the Southeast is funneling hot, humid air northward into the mid-Atlantic, and Frederick is right in the bullseye. Afternoon highs have consistently topped 95°F, with dewpoints hovering in the upper 60s — that's the kind of combo that makes the heat index feel 105°+.</p>
+      <div class="data-callout">
+        <strong>📊 By the numbers:</strong> Frederick hit 97°F on Thursday, tying the daily record set in 1988. The overnight low of 76°F was also notable — our "coolest" time of day is still warmer than most summer afternoons in cooler climates.
+      </div>
+      <p>The ridge starts to break down by Tuesday as a cold front approaches from the northwest. The GFS has been consistent on a Tuesday afternoon storm chance, while the Euro wants to hold the boundary back an extra 12 hours. Either way, expect some fireworks before the relief arrives.</p>
+      <p>Once that front clears, temperatures should drop back to the low-to-mid 80s by Wednesday — still warm, but a world apart from what we've been dealing with. Keep an eye on the Tuesday evening storm window if you have outdoor plans.</p>
+    `
+  },
+  {
+    id: "post-002",
+    date: "Jun 22, 2025",
+    title: "AI Outlook: Sunday–Saturday Weather Summary for Frederick",
+    type: "ai",
+    tags: ["outlook"],
+    pinned: false,
+    summary: "An AI-generated plain-English breakdown of the upcoming seven-day period, pulled from NWS forecast data for Frederick, MD.",
+    body: `
+      <p>The week ahead looks split into two distinct chapters. The first half (Sunday through Wednesday) will be dominated by the same hot and humid airmass that has been in place since mid-June. Highs in the mid-to-upper 90s are expected, with heat index values potentially exceeding 105°F during peak afternoon hours.</p>
+      <div class="data-callout">
+        <strong>💧 Humidity note:</strong> Dewpoints in the 68–72°F range are forecast Monday and Tuesday — that's oppressively muggy by any measure. Limit strenuous outdoor activity to before 10AM or after 7PM.
+      </div>
+      <p>A cold front arrives Wednesday, bringing a chance of strong to severe thunderstorms. The Storm Prediction Center has highlighted our area for a marginal to slight severe weather risk. Primary threats are damaging wind gusts and heavy rainfall. The front should clear by Thursday morning.</p>
+      <p>Behind the front, high pressure builds from the northwest, ushering in a refreshing airmass for the back half of the week. Highs Thursday through Saturday will be in the low 80s with dewpoints in the 50s — classic comfortable summer weather. Mostly sunny skies are expected with no significant rain chances.</p>
+      <p><em>This post was generated using NWS forecast data for Frederick, MD and plain-language summarization.</em></p>
+    `
+  },
+  {
+    id: "post-003",
+    date: "Jun 15, 2025",
+    title: "Reading the Radar: Understanding the Bow Echo That Hit Frederick Last Tuesday",
+    type: "editor",
+    tags: ["radar", "event"],
+    pinned: false,
+    summary: "Last Tuesday's squall line produced a textbook bow echo over the Frederick area. Let's break down what that signature means and why it matters for predicting severe wind threats.",
+    body: `
+      <p>If you were watching radar last Tuesday evening around 7PM, you saw something distinctive: the leading edge of the squall line bowed outward as it passed through Frederick County. That comma-shaped arc is called a bow echo, and it's one of the most reliable radar signatures for damaging straight-line winds.</p>
+      <p>Here's the physics: as the convective system moves forward, a rear-inflow jet — essentially a surge of dry air from behind the storm — descends into the back of the bow. This accelerates the forward motion of the storm's leading edge, concentrating wind energy at the apex of the bow. That's exactly where Frederick city sat on Tuesday night.</p>
+      <div class="data-callout">
+        <strong>📡 What we saw:</strong> The bow apex tracked from Hagerstown through downtown Frederick and into Montgomery County over about 45 minutes. Reported gusts at the Frederick Municipal Airport hit 58 mph. Several hundred power outages were reported across the county.
+      </div>
+      <p>The good news: bow echoes are relatively easy to spot on radar with 20–30 minutes of lead time. When you see that bowing shape developing on a radar loop, treat it as a high-confidence signal for wind damage along its path — even if no tornado warning is in effect.</p>
+      <p>Going forward, I'll be highlighting notable radar signatures in this blog section whenever a significant event affects Frederick. The goal is to build pattern recognition so you know what to look for on your own.</p>
+    `
+  },
+  {
+    id: "post-004",
+    date: "Jun 8, 2025",
+    title: "Climate Note: Frederick's June Temperature Trend Over the Past 30 Years",
+    type: "editor",
+    tags: ["climate"],
+    pinned: false,
+    summary: "Using NOAA climate data, I looked at how Frederick's average June high temperature has shifted since the 1990s. The trend is clear — and it has real implications for heat risk in the valley.",
+    body: `
+      <p>Frederick sits in the Monocacy Valley, a geography that makes it particularly susceptible to heat. The surrounding ridges can trap warm air at the surface during high-pressure events, and the valley's relatively low elevation means less cooling than you'd find in the Blue Ridge foothills to the west.</p>
+      <p>I pulled NOAA's Climate Data Online records for the Frederick Municipal Airport (KFDK) going back to 1993. The data tells a consistent story: the average June high temperature has increased by approximately 2.4°F over that 30-year period, with the most pronounced warming occurring in the last decade.</p>
+      <div class="data-callout">
+        <strong>📈 The trend:</strong> 1993–2003 average June high: 83.1°F. 2014–2024 average June high: 85.6°F. That might not sound dramatic, but it pushes more days into the "excessive heat" threshold and compresses the comfortable window in the morning and evening.
+      </div>
+      <p>What this means practically: the number of days where the heat index exceeds 100°F in Frederick has roughly doubled since the mid-1990s. This is something to keep in mind for vulnerable populations — the elderly, outdoor workers, and anyone without reliable air conditioning.</p>
+      <p>I'll be doing similar deep-dives on precipitation trends and severe weather frequency in future posts. There's a lot of interesting signal in the local climate data for Frederick specifically.</p>
+    `
+  }
+];
+
+// ─── VIEW SWITCHING ───────────────────────────────────────────────────────
+function showView(view) {
+  const forecastView = document.getElementById("forecast-view");
+  const blogView = document.getElementById("blog-view");
+  const navForecast = document.getElementById("nav-forecast");
+  const navBlog = document.getElementById("nav-blog");
+
+  if (view === "forecast") {
+    forecastView.style.display = "block";
+    blogView.style.display = "none";
+    navForecast.classList.add("active");
+    navBlog.classList.remove("active");
+  } else {
+    forecastView.style.display = "none";
+    blogView.style.display = "block";
+    navForecast.classList.remove("active");
+    navBlog.classList.add("active");
+    renderBlog("all");
+  }
+}
+
+// ─── BLOG RENDERING ───────────────────────────────────────────────────────
+let currentTag = "all";
+
+function filterPosts(tag, btn) {
+  currentTag = tag;
+  document.querySelectorAll(".tag-pill").forEach(p => p.classList.remove("active"));
+  btn.classList.add("active");
+  renderBlog(tag);
+}
+
+function renderBlog(tag) {
+  const feed = document.getElementById("blog-feed");
+  let posts = [...BLOG_POSTS];
+
+  // Sort: pinned first, then by date descending (index order)
+  posts.sort((a, b) => (b.pinned ? 1 : 0) - (a.pinned ? 1 : 0));
+
+  // Filter by tag
+  if (tag !== "all") {
+    posts = posts.filter(p => p.tags.includes(tag));
+  }
+
+  if (posts.length === 0) {
+    feed.innerHTML = `<div class="blog-empty"><p>No posts in this category yet.</p></div>`;
+    return;
+  }
+
+  feed.innerHTML = posts.map(post => renderPostCard(post)).join("");
+}
+
+function tagHTML(tag) {
+  const labels = {
+    outlook: "Weekly Outlook",
+    event: "Storm Event",
+    climate: "Climate Notes",
+    radar: "Radar Breakdown"
+  };
+  return `<span class="post-tag ${tag}">${labels[tag] || tag}</span>`;
+}
+
+function renderPostCard(post) {
+  const authorLabel = post.type === "ai" ? "AI Generated" : "Editor Analysis";
+  const authorIcon = post.type === "ai" ? "🤖" : "✍️";
+  const pinnedHTML = post.pinned
+    ? `<span class="pinned-label">📌 Pinned</span>`
+    : "";
+  const tagsHTML = post.tags.map(tagHTML).join(" ");
+
+  return `
+    <div class="post-card${post.pinned ? ' pinned' : ''}" id="card-${post.id}">
+      <div class="post-card-inner">
+        <div class="post-meta">
+          ${pinnedHTML}
+          <span class="author-badge ${post.type}">
+            <span class="badge-dot"></span>
+            ${authorIcon} ${authorLabel}
+          </span>
+          ${tagsHTML}
+          <span class="post-date">${post.date}</span>
+        </div>
+        <h2 class="post-title">${post.title}</h2>
+        <p class="post-summary">${post.summary}</p>
+        <div class="post-body" id="body-${post.id}">${post.body}</div>
+        <button class="read-more-btn" id="btn-${post.id}" onclick="togglePost('${post.id}')">
+          Read more <span class="arrow">▾</span>
+        </button>
+      </div>
+    </div>
+  `;
+}
+
+function togglePost(id) {
+  const body = document.getElementById(`body-${id}`);
+  const btn = document.getElementById(`btn-${id}`);
+  const isOpen = body.classList.contains("open");
+  body.classList.toggle("open", !isOpen);
+  btn.classList.toggle("open", !isOpen);
+  btn.innerHTML = !isOpen
+    ? `Show less <span class="arrow">▾</span>`
+    : `Read more <span class="arrow">▾</span>`;
+}
+
+// ─── WEATHER CODE → EMOJI + LABEL ─────────────────────────────────────────
+function decodeWMO(code) {
+  const map = {
+    0: { icon: "☀️", label: "Clear skies" },
+    1: { icon: "🌤️", label: "Mostly clear" },
+    2: { icon: "⛅", label: "Partly cloudy" },
+    3: { icon: "☁️", label: "Overcast" },
+    45: { icon: "🌫️", label: "Foggy" },
+    48: { icon: "🌫️", label: "Icy fog" },
+    51: { icon: "🌦️", label: "Light drizzle" },
+    53: { icon: "🌦️", label: "Drizzle" },
+    55: { icon: "🌧️", label: "Heavy drizzle" },
+    61: { icon: "🌧️", label: "Light rain" },
+    63: { icon: "🌧️", label: "Rain" },
+    65: { icon: "🌧️", label: "Heavy rain" },
+    71: { icon: "🌨️", label: "Light snow" },
+    73: { icon: "❄️", label: "Snow" },
+    75: { icon: "❄️", label: "Heavy snow" },
+    77: { icon: "🌨️", label: "Snow grains" },
+    80: { icon: "🌦️", label: "Showers" },
+    81: { icon: "🌧️", label: "Rain showers" },
+    82: { icon: "⛈️", label: "Heavy showers" },
+    85: { icon: "🌨️", label: "Snow showers" },
+    86: { icon: "❄️", label: "Heavy snow showers" },
+    95: { icon: "⛈️", label: "Thunderstorm" },
+    96: { icon: "⛈️", label: "T-storm w/ hail" },
+    99: { icon: "⛈️", label: "Severe T-storm" },
+  };
+  return map[code] || { icon: "🌡️", label: "Conditions vary" };
+}
+
+// ─── PLAIN ENGLISH GENERATOR ───────────────────────────────────────────────
+function makePlainEnglish(current, daily, hourly) {
+  const temp = Math.round(current.temperature_2m);
+  const feelsLike = Math.round(current.apparent_temperature);
+  const wind = Math.round(current.wind_speed_10m);
+  const code = current.weather_code;
+  const { label } = decodeWMO(code);
+  const hi = Math.round(daily.temperature_2m_max[0]);
+  const lo = Math.round(daily.temperature_2m_min[0]);
+  const precip = daily.precipitation_probability_max[0];
+
+  let feel = "";
+  if (Math.abs(temp - feelsLike) >= 5) {
+    feel = ` — though it feels more like ${feelsLike}°`;
+  }
+
+  let precipLine = "";
+  if (precip >= 70) precipLine = " Definitely grab an umbrella before heading out.";
+  else if (precip >= 40) precipLine = " There's a decent chance of rain today, so keep an umbrella handy.";
+  else if (precip > 15) precipLine = " Rain is possible but unlikely to be a problem.";
+  else precipLine = " No rain in the cards today.";
+
+  let windLine = "";
+  if (wind >= 25) windLine = " It's breezy out there — hold onto your hat.";
+  else if (wind >= 15) windLine = " A light wind is in the mix.";
+
+  return `It's ${temp}°F out there right now${feel}. Expect a high of ${hi}° and a low of ${lo}° today.${precipLine}${windLine}`;
+}
+
+// ─── FETCH NWS ALERTS ─────────────────────────────────────────────────────
+async function fetchAlerts() {
+  try {
+    const res = await fetch(
+      `https://api.weather.gov/alerts/active?point=${FREDERICK.lat},${FREDERICK.lon}`,
+      { headers: { "User-Agent": "FrederickWeatherBlog/1.0" } }
+    );
+    const data = await res.json();
+    return data.features || [];
+  } catch { return []; }
+}
+
+// ─── FETCH OPEN-METEO ─────────────────────────────────────────────────────
+async function fetchWeather() {
+  const url = `https://api.open-meteo.com/v1/forecast` +
+    `?latitude=${FREDERICK.lat}&longitude=${FREDERICK.lon}` +
+    `&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,relative_humidity_2m,precipitation` +
+    `&hourly=temperature_2m,weather_code,precipitation_probability` +
+    `&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum` +
+    `&temperature_unit=fahrenheit&wind_speed_unit=mph&precipitation_unit=inch` +
+    `&timezone=America%2FNew_York&forecast_days=7`;
+
+  const res = await fetch(url);
+  if (!res.ok) throw new Error("Weather fetch failed");
+  return res.json();
+}
+
+// ─── FORMAT TIME ──────────────────────────────────────────────────────────
+function fmtTime(iso) {
+  const d = new Date(iso);
+  let h = d.getHours(), ampm = "AM";
+  if (h === 0) h = 12;
+  else if (h === 12) ampm = "PM";
+  else if (h > 12) { h -= 12; ampm = "PM"; }
+  return `${h}${ampm}`;
+}
+
+function dayName(iso, i) {
+  if (i === 0) return "Today";
+  const days = ["Sun","Mon","Tue","Wed","Thu","Fri","Sat"];
+  return days[new Date(iso).getDay()];
+}
+
+// ─── RENDER FORECAST ──────────────────────────────────────────────────────
+function render(weather, alerts) {
+  const cur = weather.current;
+  const daily = weather.daily;
+  const hourly = weather.hourly;
+  const now = new Date();
+
+  const curCode = decodeWMO(cur.weather_code);
+  const plainText = makePlainEnglish(cur, daily, hourly);
+
+  const nowIdx = hourly.time.findIndex(t => new Date(t) >= now);
+  const nextHours = hourly.time.slice(nowIdx, nowIdx + 12);
+
+  let alertHTML = "";
+  if (alerts.length > 0) {
+    const a = alerts[0].properties;
+    alertHTML = `
+      <div class="alert-banner">
+        <span class="alert-icon">⚠️</span>
+        <div class="alert-text">
+          <strong>${a.event}</strong>
+          ${a.headline || "Active weather alert for the Frederick area."}
+        </div>
+      </div>`;
+  }
+  document.getElementById("alert-container").innerHTML = alertHTML;
+
+  const forecastDays = daily.time.map((t, i) => {
+    const dc = decodeWMO(daily.weather_code[i]);
+    return `
+      <div class="forecast-day ${i === 0 ? 'today' : ''}">
+        <span class="day-name">${dayName(t, i)}</span>
+        <span class="day-icon">${dc.icon}</span>
+        <span class="day-hi">${Math.round(daily.temperature_2m_max[i])}°</span>
+        <span class="day-lo">${Math.round(daily.temperature_2m_min[i])}°</span>
+      </div>`;
+  }).join("");
+
+  const hourlyItems = nextHours.map((t, i) => {
+    const idx = nowIdx + i;
+    const hc = decodeWMO(hourly.weather_code[idx]);
+    const pp = hourly.precipitation_probability[idx];
+    return `
+      <div class="hourly-item">
+        <span class="hour-time">${fmtTime(t)}</span>
+        <span class="hour-icon">${hc.icon}</span>
+        <span class="hour-temp">${Math.round(hourly.temperature_2m[idx])}°</span>
+        ${pp > 10 ? `<span class="hour-precip">💧 ${pp}%</span>` : '<span class="hour-precip"> </span>'}
+      </div>`;
+  }).join("");
+
+  const updateTime = now.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit", timeZoneName: "short" });
+
+  document.getElementById("main-content").innerHTML = `
+    <div class="hero-card">
+      <div class="hero-top">
+        <div>
+          <div class="location-label">📍 ${FREDERICK.name}</div>
+          <div class="current-temp">${Math.round(cur.temperature_2m)}<sup>°F</sup></div>
+        </div>
+        <div class="condition-block">
+          <span class="condition-icon">${curCode.icon}</span>
+          <span class="condition-label">${curCode.label}</span>
+        </div>
+      </div>
+
+      <div class="plain-english">
+        <div class="plain-english-label">Plain English Forecast</div>
+        <p>${plainText}</p>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-box">
+          <span class="stat-icon">🌡️</span>
+          <span class="stat-value">${Math.round(cur.apparent_temperature)}°</span>
+          <span class="stat-label">Feels Like</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-icon">💧</span>
+          <span class="stat-value">${cur.relative_humidity_2m}%</span>
+          <span class="stat-label">Humidity</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-icon">💨</span>
+          <span class="stat-value">${Math.round(cur.wind_speed_10m)}</span>
+          <span class="stat-label">Wind mph</span>
+        </div>
+        <div class="stat-box">
+          <span class="stat-icon">🌧️</span>
+          <span class="stat-value">${daily.precipitation_probability_max[0]}%</span>
+          <span class="stat-label">Rain Chance</span>
+        </div>
+      </div>
+
+      <div class="widget-footer">
+        <span class="update-time">Updated ${updateTime}</span>
+        <span class="data-sources">
+          Data: <a href="https://open-meteo.com" target="_blank">Open-Meteo</a> &amp;
+          <a href="https://api.weather.gov" target="_blank">NWS</a>
+        </span>
+      </div>
+    </div>
+
+    <div class="section-label">7-Day Forecast</div>
+    <div class="forecast-strip">${forecastDays}</div>
+
+    <div class="section-label">Hour by Hour</div>
+    <div class="hourly-scroll">${hourlyItems}</div>
+  `;
+}
+
+// ─── INIT ─────────────────────────────────────────────────────────────────
+async function init() {
+  try {
+    const [weather, alerts] = await Promise.all([fetchWeather(), fetchAlerts()]);
+    render(weather, alerts);
+  } catch (err) {
+    document.getElementById("main-content").innerHTML = `
+      <div class="error-card">
+        <h3>Couldn't reach the sky right now ☁️</h3>
+        <p style="margin-top:0.5rem;font-size:0.9rem;color:#6b7fa3;">
+          Having trouble pulling live data. Try refreshing in a moment.
+        </p>
+      </div>`;
+    console.error(err);
+  }
+}
+
+init();
+</script>
+</body>
+</html>

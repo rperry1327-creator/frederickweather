@@ -1,0 +1,22 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npm --version)",
+      "Bash(cp index_1.html index.html)",
+      "Bash(git init *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git remote *)",
+      "Bash(git branch *)",
+      "Bash(git push *)",
+      "Bash(ssh-keygen -t ed25519 -C \"rperry1327@gmail.com\" -f ~/.ssh/id_ed25519 -N \"\")",
+      "Bash(ssh -T git@github.com)",
+      "WebFetch(domain:frederickweather.com)",
+      "Bash(npm create *)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(cp -r frederickweather-react/. .)",
+      "Bash(rm -rf frederickweather-react node_modules)"
+    ]
+  }
+}
